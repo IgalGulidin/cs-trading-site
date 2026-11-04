@@ -26,10 +26,36 @@ type Props = {
 };
 
 export function ListingCard({ listing }: Props) {
+  const item = listing.items[0];
+  const ownerName = listing.owner.name;
+  const completedTrades = listing.owner.completedTrades;
+  const lookingFor = listing.lookingFor;
+
   return (
     <div className="rounded-2xl bg-zinc-900 p-4">
-      {/* Start here! */}
-      <p>{listing.items[0].name}</p>
+      <p className="mb-2 text-sm text-zinc-400">
+        {ownerName} · {completedTrades} trades
+      </p>
+      <img src={item.imageUrl} alt={item.name} className="w-full rounded-lg" />
+      <div className="mt-2 flex gap-2">
+        {item.statTrak && (
+          <span className="rounded bg-orange-500/20 px-2 py-0.5 text-xs text-orange-400">
+            StatTrak™
+          </span>
+        )}
+        {item.souvenir && (
+          <span className="rounded bg-yellow-500/20 px-2 py-0.5 text-xs text-yellow-400">
+            Souvenir
+          </span>
+        )}
+      </div>
+      <p className="mt-2 font-bold">{item.name}</p>
+      <p className="mt-1 text-sm text-zinc-400">
+        {item.wear} - {item.float}
+      </p>
+      <p className="mt-3 text-sm">
+        <span className="text-zinc-400">Looking for:</span> {lookingFor}
+      </p>
     </div>
   );
 }
