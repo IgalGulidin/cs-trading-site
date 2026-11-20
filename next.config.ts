@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false, // don't advertise that we run Next.js
+  experimental: {
+    agentUpgrade: "security",
+  },
   images: {
     // Only allow <Image> to load from hosts we trust
     remotePatterns: [
