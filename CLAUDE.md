@@ -78,9 +78,10 @@ Upstash Redis, Cloudflare Turnstile, Vercel hosting.
 - ✅ **Swipe gesture done** (Claude): `src/components/SwipeDeck.tsx` (client component, `motion` v14,
   import from `"motion/react"`). Drag/fling or ✕/♥ buttons; LIKE/NOPE stamps; next card peeks behind.
   Likes are only in React state for now (`likedIds`) — not saved yet.
-  ← / → arrow keys swipe too (user wrote the `useEffect` keydown logic; Claude fixed placement/braces).
+  ← / → arrow keys: user wrote the logic, but the committed version still wraps `useEffect` in an
+  unused `function keyDownHandler()` (lint error, keys do nothing) — user to remove the wrapper.
   Lesson to reinforce: Rules of Hooks (top level, before early return), stale closures with `[]`.
-- Next: Steam login (OpenID). Also pending: Next.js 16.4.4 has security advisories → upgrade to 16.4.6.
+- ✅ Next.js upgraded to 16.4.6 (merged). Next: Steam login (OpenID).
 
 ## Notes
 
