@@ -69,13 +69,18 @@ Upstash Redis, Cloudflare Turnstile, Vercel hosting.
 
 ## Current status (update this as we go)
 
-- Working on: **`ListingCard.tsx`** (user's task). Done: owner line, image, StatTrak/Souvenir
-  labels, name, wear + float, "Looking for".
-- Pending feedback from last review: show wear/float only when `item.wear` exists (`&&`),
-  use `·` instead of `-`.
-- **Next mini-challenge: bundles** — show `listing.items.slice(1).map(...)` as small
-  thumbnails (`h-16 w-16`, `key={extra.id}`) + "+N items" text.
-- After the card: Claude builds the swipe gesture (Framer Motion), then Steam login.
+- ✅ **`ListingCard.tsx` done.** User wrote owner/image/labels/name/wear; at the user's request
+  Claude finished wear fix + bundle thumbnails + total value as a commented **reference version**
+  (patterns: `&&`, ternary, `.map` + `key`, `.slice`, `.reduce`, `!== null` vs falsy 0).
+  Point back to it in future tasks.
+- User found guided tasks slow — keep steps smaller, and offer a finished reference when they're stuck.
+- Windows: PowerShell blocked `npm` scripts (execution policy). Fix: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+- ✅ **Swipe gesture done** (Claude): `src/components/SwipeDeck.tsx` (client component, `motion` v14,
+  import from `"motion/react"`). Drag/fling or ✕/♥ buttons; LIKE/NOPE stamps; next card peeks behind.
+  Likes are only in React state for now (`likedIds`) — not saved yet.
+  ← / → arrow keys swipe too (user wrote the `useEffect` keydown logic; Claude fixed placement/braces).
+  Lesson to reinforce: Rules of Hooks (top level, before early return), stale closures with `[]`.
+- Next: Steam login (OpenID). Also pending: Next.js 16.4.4 has security advisories → upgrade to 16.4.6.
 
 ## Notes
 

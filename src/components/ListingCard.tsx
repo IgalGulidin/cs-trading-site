@@ -1,42 +1,40 @@
 import type { Listing } from "@/types/item";
 
-// 🎯 YOUR TASK — build the trade card.
-//
-// Goal: replace the raw JSON on the Swipe page with good-looking cards.
-//
-// Steps:
-//  1. Show the FIRST item big: image, name, wear badge (e.g. "FT"), float value.
-//  2. If item.statTrak  → show an orange "StatTrak™" badge.
-//     If item.souvenir  → show a yellow "Souvenir" badge.
-//  3. If listing.items.length > 1 → it's a bundle: show the other items as small
-//     thumbnails underneath (hint: listing.items.slice(1).map(...)).
-//  4. Show the owner (name + completed trades) and "Looking for: ...".
-//  5. Bonus: show the total value of the bundle
-//     (hint: listing.items.reduce((sum, item) => sum + item.priceUsd, 0)).
-//  6. In src/app/page.tsx, swap the <pre> for <ListingCard listing={listing} />.
-//
-// Tips:
-//  - For images use `import Image from "next/image"` with width/height props.
-//  - WEAR_NAMES in "@/types/item" turns "FT" into "Field-Tested".
-//  - Price formatting: item.priceUsd.toLocaleString("en-US", { style: "currency", currency: "USD" })
-//  - Design for a phone first — check it in Chrome DevTools' device mode (Ctrl+Shift+M).
+// 📘 REFERENCE VERSION — finished by Claude so you can see the patterns.
+// Each section has a comment saying WHICH concept it uses. Reuse these patterns
+// in future components!
 
 type Props = {
   listing: Listing;
 };
 
+// Helper function: turns 1450 into "$1,450.00".
+// Small reusable logic → its own function, outside the component.
+function formatUsd(amount: number) {
+  return amount.toLocaleString("en-US", { style: "currency", currency: "USD" });
+}
+
 export function ListingCard({ listing }: Props) {
-  const item = listing.items[0];
-  const ownerName = listing.owner.name;
-  const completedTrades = listing.owner.completedTrades;
-  const lookingFor = listing.lookingFor;
+  // VARIABLES — pull out what we need so the JSX below stays readable.
+  const item = listing.items[0]; // first item = the big one
+  const extraItems = listing.items.slice(1); // everything EXCEPT the first (new array)
+  const isBundle = listing.items.length > 1; // a boolean: true or false
+
+  // .reduce — walks over the array and "adds up" into one value.
+  // sum starts at 0, then for each item: sum = sum + item.priceUsd
+  const totalValue = listing.items.reduce((sum, i) => sum + i.priceUsd, 0);
 
   return (
     <div className="rounded-2xl bg-zinc-900 p-4">
+      {/* Owner line */}
       <p className="mb-2 text-sm text-zinc-400">
-        {ownerName} · {completedTrades} trades
+        {listing.owner.name} · {listing.owner.completedTrades} trades
       </p>
+
+      {/* Main image */}
       <img src={item.imageUrl} alt={item.name} className="w-full rounded-lg" />
+
+      {/* CONDITIONAL RENDERING with && — "if true, show this" */}
       <div className="mt-2 flex gap-2">
         {item.statTrak && (
           <span className="rounded bg-orange-500/20 px-2 py-0.5 text-xs text-orange-400">
@@ -49,12 +47,45 @@ export function ListingCard({ listing }: Props) {
           </span>
         )}
       </div>
+
       <p className="mt-2 font-bold">{item.name}</p>
-      <p className="mt-1 text-sm text-zinc-400">
-        {item.wear} - {item.float}
-      </p>
+
+      {/* The && wraps the WHOLE <p> — so the entire line disappears for stickers/cases.
+          ⚠️ We check `!== null` for float instead of plain &&, because a float of 0
+          is "falsy" and React would literally print "0" on the screen! */}
+      {item.wear && (
+        <p className="mt-1 text-sm text-zinc-400">
+          {item.wear}
+          {item.float !== null && <> · {item.float.toFixed(4)}</>}
+        </p>
+      )}
+
+      {/* BUNDLES — .map turns an array of DATA into an array of JSX.
+          Every element from .map needs a unique `key` so React can track it. */}
+      {isBundle && (
+        <div className="mt-3 flex items-center gap-2">
+          {extraItems.map((extra) => (
+            <img
+              key={extra.id}
+              src={extra.imageUrl}
+              alt={extra.name}
+              title={extra.name} // shows the name on hover
+              className="h-16 w-16 rounded-lg bg-zinc-800 object-contain"
+            />
+          ))}
+          <span className="text-sm text-zinc-400">+{extraItems.length} items</span>
+        </div>
+      )}
+
+      {/* Total value: for a bundle we say "Total", for a single item just the price.
+          `condition ? A : B` is the TERNARY — an if/else that works inside JSX. */}
       <p className="mt-3 text-sm">
-        <span className="text-zinc-400">Looking for:</span> {lookingFor}
+        <span className="text-zinc-400">{isBundle ? "Total value:" : "Value:"}</span>{" "}
+        <span className="font-semibold text-green-400">{formatUsd(totalValue)}</span>
+      </p>
+
+      <p className="mt-1 text-sm">
+        <span className="text-zinc-400">Looking for:</span> {listing.lookingFor}
       </p>
     </div>
   );
