@@ -15,6 +15,8 @@ The owner is building it **to learn to code** — they are a beginner.
   then give friendly feedback: what's good first, then small fixes, then the next mini-challenge.
 - Explain concepts simply (they asked to practice the basics: variables, `if`, arrays, `.map`, JSX).
 - Don't rewrite the user's files without asking — suggest the change and let them type it.
+- User found guided tasks slow — keep steps small; offer a finished, commented reference version
+  when they're stuck or ask for it ("finish it so I can learn").
 
 ## Product decisions (already made — don't re-ask)
 
@@ -43,14 +45,19 @@ The owner is building it **to learn to code** — they are a beginner.
 
 ## Stack
 
-Next.js 16 (App Router, `src/` dir, Cache Components on) · React 19 · TypeScript · Tailwind v4.
-Planned: Framer Motion (swipe), Supabase Postgres + realtime, Drizzle or Prisma, Zod,
+Next.js **16.4.6** (App Router, `src/` dir, Cache Components on) · React 19 · TypeScript · Tailwind v4 ·
+**`motion` v14** (formerly Framer Motion — import from `"motion/react"`).
+Planned: Supabase Postgres + realtime, Drizzle or Prisma, Zod,
 Upstash Redis, Cloudflare Turnstile, Vercel hosting.
 
 ## Project layout
 
 - `src/app/` — pages: `/` swipe feed, `/likes`, `/matches`, `/profile`; `layout.tsx` = dark mobile shell + bottom nav
-- `src/components/` — `BottomNav.tsx`, `ListingCard.tsx` (written by the user)
+- `src/app/page.tsx` — Server Component; passes `MOCK_LISTINGS` to `<SwipeDeck>`
+- `src/components/BottomNav.tsx` — bottom navigation
+- `src/components/ListingCard.tsx` — the card (user + Claude). Commented **reference version** —
+  point back to it in future tasks.
+- `src/components/SwipeDeck.tsx` — `"use client"` swipe stack (Claude; arrow keys written by the user)
 - `src/types/item.ts` — `Item`, `Listing`, `Wear`, `WEAR_NAMES` (shared types)
 - `src/lib/mock-data.ts` — 3 fake listings (one is a 3-item bundle) until we have a database
 - `src/lib/config.ts` — `SITE_NAME` (placeholder name "SkinSwipe")
@@ -59,32 +66,48 @@ Upstash Redis, Cloudflare Turnstile, Vercel hosting.
 ## Roadmap
 
 1. ✅ Setup: Next.js + TS + Tailwind, mobile layout, security headers
-2. Steam login (OpenID) — let the user implement parts of it, it's educational
+2. **← NEXT:** Steam login (OpenID) — let the user implement parts of it, it's educational
 3. Inventory import + caching
 4. Create-listing form (bundles)
-5. Swipe feed (Framer Motion) + feed ranking
+5. Swipe feed — ✅ card + swipe gesture done (on mock data); feed ranking still to do
 6. Likes, matches, offers, notifications
 7. Trade verification + reputation
 8. Hardening (rate limits, Turnstile, account checks, CSP) → launch
 
 ## Current status (update this as we go)
 
-- ✅ **`ListingCard.tsx` done.** User wrote owner/image/labels/name/wear; at the user's request
-  Claude finished wear fix + bundle thumbnails + total value as a commented **reference version**
-  (patterns: `&&`, ternary, `.map` + `key`, `.slice`, `.reduce`, `!== null` vs falsy 0).
-  Point back to it in future tasks.
-- User found guided tasks slow — keep steps smaller, and offer a finished reference when they're stuck.
-- Windows: PowerShell blocked `npm` scripts (execution policy). Fix: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
-- ✅ **Swipe gesture done** (Claude): `src/components/SwipeDeck.tsx` (client component, `motion` v14,
-  import from `"motion/react"`). Drag/fling or ✕/♥ buttons; LIKE/NOPE stamps; next card peeks behind.
-  Likes are only in React state for now (`likedIds`) — not saved yet.
-  ← / → arrow keys: user wrote the logic, but the committed version still wraps `useEffect` in an
-  unused `function keyDownHandler()` (lint error, keys do nothing) — user to remove the wrapper.
-  Lesson to reinforce: Rules of Hooks (top level, before early return), stale closures with `[]`.
-- ✅ Next.js upgraded to 16.4.6 (merged). Next: Steam login (OpenID).
+Last session ended 2026-11-26. Everything committed and pushed to `main`. Lint = only the
+accepted `<img>` warnings; `tsc` clean; `next build` passes.
+
+- ✅ **ListingCard** — image, owner, StatTrak™/Souvenir labels, wear · float (only if `wear`),
+  bundle thumbnails + "+N items", total value.
+- ✅ **SwipeDeck** — drag/fling, ✕/♥ buttons, or ← / → keys; tilt + LIKE/NOPE stamps; next card
+  peeks behind; "No more listings" + Start over. Likes live only in React state (`likedIds`) —
+  **not saved yet** (needs login + database).
+- ✅ Next.js upgraded 16.4.4 → 16.4.6 (security advisories). `npm audit --omit=dev` = 0 vulnerabilities.
+- **Next session: start Steam login (OpenID).** Claude does the plumbing (callback verification,
+  session cookie, security); give the user small guided parts.
+
+### What the user has learned (reinforce these)
+- JSX, `&&`, ternary, `.map` + `key`, `.slice`, `.reduce`, `!== null` vs falsy `0`,
+  `useState`, `useEffect` + cleanup, `"use client"`.
+- **Rules of Hooks** (top level only, before any early `return`) — they got this wrong once.
+- **Stale closures**: `useEffect(..., [])` remembers first-render values.
+- Matching `{ }` braces — suggest VS Code bracket highlighting + Shift+Alt+F to format.
+- **Git merges**: conflicts often need **both** sides; never hand-edit `package-lock.json`
+  (take one side, then `npm install`). They stopped and asked instead of guessing — encourage that.
+- Remember to save files (Ctrl+S) before asking for a review.
 
 ## Notes
 
-- `npm audit` shows moderate issues in ESLint dev tooling only — do NOT run `npm audit fix --force`.
+- Works on **two Windows machines** (desktop + laptop) via GitHub: github.com/IgalGulidin/cs-trading-site.
+  **When starting on the other machine:** `git pull` → `npm install` (deps changed: `motion`, Next 16.4.6).
+- PowerShell may block `npm` ("running scripts is disabled on this system"). Fix once per machine:
+  `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` (or use `npm.cmd`).
+- If `tsc` says `Cannot find name 'LayoutProps'`, the generated types are missing:
+  run `npx next typegen` (or `npm run dev` once).
+- Python is not installed on the main machine — don't rely on it for scripts.
+- Do NOT run `npm audit fix --force`.
 - The `<img>` lint warning is accepted for now; switch to `next/image` later.
-- Windows machine (also continuing on a laptop via GitHub: github.com/IgalGulidin/cs-trading-site).
+- `next build` / `next dev` may stop once with a Next.js security-upgrade reminder
+  (`experimental.agentUpgrade: "security"` in `next.config.ts`); retrying continues.
