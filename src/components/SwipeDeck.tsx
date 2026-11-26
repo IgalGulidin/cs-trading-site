@@ -78,9 +78,8 @@ export function SwipeDeck({ listings }: Props) {
     }
   }
 
-  function keyDownHandler() {
     useEffect(() => {
-      const handleKeyDown = (event : KeyboardEvent) => {
+      const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === "ArrowLeft") {
           swipe("left");
         } else if (event.key === "ArrowRight") {
@@ -93,7 +92,7 @@ export function SwipeDeck({ listings }: Props) {
         window.removeEventListener("keydown", handleKeyDown);
       };
     });
-  }
+  
 
   // Ran out of cards.
   if (!current) {
